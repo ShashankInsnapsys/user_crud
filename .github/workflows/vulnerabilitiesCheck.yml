@@ -27,7 +27,8 @@ jobs:
       - name: Audit npm dependencies
         id: npm-audit
         run: |
-          npm audit --production --json > npm_audit_report.json
+          npm audit --production --json
+          npm audit ci || echo "::set-output name=audit-failed::true"
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
