@@ -51,31 +51,15 @@ jobs:
         if [ "$npm_audit_result" != "{}" ]; then
           echo "NPM vulnerabilities found!"
           echo "$npm_audit_result"
-          run: |
-          TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          REPO="${{ github.repository }}"
-          TITLE="Vulnerabilities found in dependencies"
-          BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
-          LABELS="vulnerability"
-          MILESTONE="5"
-          ASSIGNEE="ShashankInsnapsys"
-          RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
-          ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
-          echo "Created issue number $ISSUE_NUMBER"
-          echo $RESPONSE
-        fi
-        if [ "$composer_audit_result" != "[]" ]; then
-          echo "Composer vulnerabilities found!"
-          echo "$composer_audit_result"
-          run: |
-            TOKEN="${{ secrets.GITHUB_TOKEN }}"
-            REPO="${{ github.repository }}"
-            TITLE="Vulnerabilities found in dependencies"
-            BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
-            LABELS="vulnerability"
-            MILESTONE="5"
-            ASSIGNEE="ShashankInsnapsys"
-            RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
-            ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
-            echo "Created issue number $ISSUE_NUMBER"
+          - name: Create Issue
+              uses: octokit/request-action@v2.x
+              with:
+                route: POST /repos/$REPO/issues
+                owner: ${{ github.repository_owner }}
+                repo: ${{ github.repository }}
+                title: "Vulnerabilities found in dependencies"
+                body: |
+                  **NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`
+                labels: "vulnerability"
+                assignees: "ShashankInsnapsys"
         fi
