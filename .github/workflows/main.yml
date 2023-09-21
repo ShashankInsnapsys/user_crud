@@ -69,5 +69,7 @@ jobs:
         repo: ${{ github.repository }}
         title: "Vulnerabilities found in dependencies"
         body: ${{ steps.create-issue-body.outputs.issue_body }}
+        labels: |
+          - vulnerability
         assignees: |
           - "ShashankInsnapsys"
