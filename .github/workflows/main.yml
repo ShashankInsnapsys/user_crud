@@ -46,7 +46,7 @@ jobs:
     - name: Check if Vulnerabilities are present
       id: condition
       run: |
-        if [ "$(cat npm-audit.json)" != "{}" ] || [ "$(cat composer-outdated.json)" != "[]" ]; then
+        if [ "$(cat npm-audit.text)" != "" ] || [ "$(cat composer-outdated.json)" != "" ]; then
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "NPM Vulnerabilities Audit $(cat npm-audit.text) Composer Vulnerabilities Audit $(cat composer-outdated.text)" >> issue_body.txt
           #echo "$(cat npm-audit.json)" >> issue_body.txt
