@@ -57,8 +57,8 @@ jobs:
           TITLE="Vulnerabilities found in dependencies"
           BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
           LABELS="vulnerability"
-          MILESTONE="28"
-          ASSIGNEE="manojmilani"
+          MILESTONE="5"
+          ASSIGNEE="ShashankInsnapsys"
           RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
           ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
           echo "Created issue number $ISSUE_NUMBER"
@@ -72,8 +72,8 @@ jobs:
             TITLE="Vulnerabilities found in dependencies"
             BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
             LABELS="vulnerability"
-            MILESTONE="28"
-            ASSIGNEE="manojmilani"
+            MILESTONE="5"
+            ASSIGNEE="ShashankInsnapsys"
             RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
             ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
             echo "Created issue number $ISSUE_NUMBER"
