@@ -1,51 +1,55 @@
 name: Vulnerability Audit
+
 on:
   push:
     branches:
       - main
 
 jobs:
-  audit:
-    name: Audit for Vulnerabilities
+  check-vulnerabilities:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+    - name: Install Node.js and npm
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
 
-      - name: Install dependencies
-        run: |
-          npm ci --ignore-scripts
-      - name: Audit npm dependencies
-        id: npm-audit
-        run: |
-          npm audit --production --json > npm_audit_report.json
-          npm audit ci || echo "::set-output name=audit-failed::true"
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
 
-      - name: Install Composer dependencies
-        run: |
-          composer install --no-scripts --no-progress --no-suggest --ignore-platform-req=ext-oci8
-      - name: Audit Composer dependencies
-        id: composer-audit
-        run: |
-          composer audit || echo "::set-output name=audit-failed::true"
-      - name: Set npm audit report as an environment variable
-        id: set-report
-        run: |
-          export REPORT_CONTENTS=$(cat npm_audit_report.json)
-          echo "::set-output name=report::$REPORT_CONTENTS"
-      - name: Create GitHub issue
-        if: ${{ steps.npm-audit.outputs.audit-failed == 'true' || steps.composer-audit.outputs.audit-failed == 'true' }}
-        run: |
+    - name: Install Composer
+      run: |
+        composer install --no-scripts --no-progress --no-suggest --ignore-platform-req=ext-oci8
+        mv composer.phar /usr/local/bin/composer
+
+    - name: Install Dependencies
+      run: |
+        npm install
+        composer install
+
+    - name: Check npm vulnerabilities
+      run: npm audit --json > npm-audit.json
+      continue-on-error: true
+
+    - name: Check Composer vulnerabilities
+      run: composer outdated --all --format=json > composer-outdated.json
+      continue-on-error: true
+
+    - name: Create GitHub Issue for Vulnerabilities
+      if: always()
+      run: |
+        npm_audit_result=$(cat npm-audit.json)
+        composer_audit_result=$(cat composer-outdated.json)
+        if [ "$npm_audit_result" != "{}" ]; then
+          echo "NPM vulnerabilities found!"
+          echo "$npm_audit_result"
+          run: |
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
           REPO="${{ github.repository }}"
           TITLE="Vulnerabilities found in dependencies"
@@ -56,3 +60,19 @@ jobs:
           RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
           ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
           echo "Created issue number $ISSUE_NUMBER"
+        fi
+        if [ "$composer_audit_result" != "[]" ]; then
+          echo "Composer vulnerabilities found!"
+          echo "$composer_audit_result"
+          run: |
+            TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            REPO="${{ github.repository }}"
+            TITLE="Vulnerabilities found in dependencies"
+            BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
+            LABELS="vulnerability"
+            MILESTONE="28"
+            ASSIGNEE="manojmilani"
+            RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
+            ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
+            echo "Created issue number $ISSUE_NUMBER"
+        fi
