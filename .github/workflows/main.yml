@@ -36,11 +36,11 @@ jobs:
         composer install
 
     - name: Check npm vulnerabilities
-      run: npm audit --json > npm-audit.json
+      run: npm audit > npm-audit.txt
       continue-on-error: true
 
     - name: Check Composer vulnerabilities
-      run: composer outdated --all --format=json > composer-outdated.json
+      run: composer outdated --all --format=text > composer-outdated.text
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
@@ -48,7 +48,7 @@ jobs:
       run: |
         if [ "$(cat npm-audit.json)" != "{}" ] || [ "$(cat composer-outdated.json)" != "[]" ]; then
           echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "NPM Vulnerabilities Audit $(cat npm-audit.json) Composer Vulnerabilities Audit $(cat composer-outdated.json)" >> issue_body.txt
+          echo "NPM Vulnerabilities Audit $(cat npm-audit.text) Composer Vulnerabilities Audit $(cat composer-outdated.text)" >> issue_body.txt
           #echo "$(cat npm-audit.json)" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "Composer Vulnerabilities Audit" >> issue_body.txt
