@@ -40,20 +40,20 @@ jobs:
       continue-on-error: true
 
     - name: Check Composer vulnerabilities
-      run: composer outdated --all --format=text > composer-outdated.text
+      run: composer outdated --all --format=text > composer-outdated.txt
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
       id: condition
       run: |
-        if [ "$(cat npm-audit.text)" != "" ] || [ "$(cat composer-outdated.json)" != "" ]; then
+        if [ "$(cat npm-audit.txt)" != "" ] || [ "$(cat composer-outdated.txt)" != "" ]; then
           echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "NPM Vulnerabilities Audit $(cat npm-audit.text) Composer Vulnerabilities Audit $(cat composer-outdated.text)" >> issue_body.txt
-          #echo "$(cat npm-audit.json)" >> issue_body.txt
+          echo "NPM Vulnerabilities Audit $(cat npm-audit.txt) Composer Vulnerabilities Audit $(cat composer-outdated.txt)" >> issue_body.txt
+          #echo "$(cat npm-audit.txt)" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "Composer Vulnerabilities Audit" >> issue_body.txt
           #echo "" >> issue_body.txt
-          #echo "$(cat composer-outdated.json)" >> issue_body.txt
+          #echo "$(cat composer-outdated.txt)" >> issue_body.txt
           cat issue_body.txt
           echo "::set-output name=issue_body::$(cat issue_body.txt)"
         else
