@@ -43,23 +43,24 @@ jobs:
       run: composer outdated --all --format=json > composer-outdated.json
       continue-on-error: true
 
-    - name: Create GitHub Issue for Vulnerabilities
-      if: always()
+    - name: Check Condition
+      id: condition
       run: |
-        npm_audit_result=$(cat npm-audit.json)
-        composer_audit_result=$(cat composer-outdated.json)
-        if [ "$npm_audit_result" != "{}" ]; then
-          echo "NPM vulnerabilities found!"
-          echo "$npm_audit_result"
-          - name: Create Issue
-              uses: octokit/request-action@v2.x
-              with:
-                route: POST /repos/$REPO/issues
-                owner: ${{ github.repository_owner }}
-                repo: ${{ github.repository }}
-                title: "Vulnerabilities found in dependencies"
-                body: |
-                  **NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`
-                labels: "vulnerability"
-                assignees: "ShashankInsnapsys"
+        if [ "$npm_audit_result" != "{}" ] || [ "$composer_audit_result" != "[]" ]; then
+          echo "::set-output name=condition::true"
+        else
+          echo "::set-output name=condition::false"
         fi
+
+    - name: Create Issue
+      if: steps.condition.outputs.condition == 'true'
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/:owner/:repo/issues
+        owner: ${{ github.repository_owner }}
+        repo: ${{ github.repository }}
+        title: "Vulnerabilities found in dependencies"
+        body: |
+           **NPM Audit Report**\n\`\`\`$(cat npm-audit.json)\`\`\`
+           **Composer Audit Report**\n\`\`\`$(cat composer-outdated.json)\`\`\`
+        assignees: "ShashankInsnapsys"
