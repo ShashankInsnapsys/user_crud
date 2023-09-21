@@ -51,13 +51,12 @@ jobs:
           echo "NPM Vulnerabilities Audit" >> issue_body.txt
           echo "$(cat npm-audit.json)" >> issue_body.txt
           echo "Composer Vulnerabilities Audit" >> issue_body.txt
-          echo "$(cat composer-outdated.json) >> issue_body.txt
+          echo "$(cat composer-outdated.json)" >> issue_body.txt
           cat issue_body.txt
           echo "::set-output name=issue_body::$(cat issue_body.txt)"
         else
           echo "::set-output name=condition::false"
         fi
-      shell: bash
 
     - name: Create Issue
       if: steps.condition.outputs.condition == 'true'
