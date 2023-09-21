@@ -63,6 +63,6 @@ jobs:
         repo: ${{ github.repository }}
         title: "Vulnerabilities found in dependencies"
         body: |
-           ** npm Audit Report **\n\`\`\`$(cat npm-audit.json)\`\`\`
-           ** Composer Audit Report **\n\`\`\`$(cat composer-outdated.json)\`\`\`
+           npm Audit Report\n\`\`\`$(cat npm-audit.json)\`\`\`
+           Composer Audit Report\n\`\`\`$(cat composer-outdated.json)\`\`\`
         assignees: "ShashankInsnapsys"
