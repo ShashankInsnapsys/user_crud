@@ -43,8 +43,8 @@ jobs:
       run: composer outdated --all --format=json > composer-outdated.json
       continue-on-error: true
 
-    - name: Check Condition
-      id: condition
+    - name: Check if Vulnerabilities are present
+      id: check-if-vulnerabilities-present
       run: |
         if [ "$npm_audit_result" != "{}" ] || [ "$composer_audit_result" != "[]" ]; then
           echo "::set-output name=condition::true"
@@ -68,7 +68,7 @@ jobs:
         owner: ${{ github.repository_owner }}
         repo: ${{ github.repository }}
         title: "Vulnerabilities found in dependencies"
-        body: ${{ steps.create-issue-body.outputs.issue_body }}
+        body: ${{ steps.check-if-vulnerabilities-present.outputs.issue_body }}
         labels: |
           - vulnerability
         assignees: |
