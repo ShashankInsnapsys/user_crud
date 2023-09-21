@@ -62,6 +62,7 @@ jobs:
           RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
           ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
           echo "Created issue number $ISSUE_NUMBER"
+          echo $RESPONSE
         fi
         if [ "$composer_audit_result" != "[]" ]; then
           echo "Composer vulnerabilities found!"
