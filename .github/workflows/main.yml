@@ -58,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: octokit/request-action@v2.x
       with:
-        route: POST /repos/:owner/:repo/issues
+        route: POST /repos/${{ github.repository }}/issues
         owner: ${{ github.repository_owner }}
         repo: ${{ github.repository }}
         title: "Vulnerabilities found in dependencies"
