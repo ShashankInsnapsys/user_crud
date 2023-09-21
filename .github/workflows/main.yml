@@ -55,7 +55,7 @@ jobs:
           cat issue_body.txt
           echo "::set-output name=issue_body::$(cat issue_body.txt)"
         else
-          echo "::set-output name=condition::false"
+          echo "::set-output name=isVulnerabilitiesPresent::false"
         fi
 
     - name: Create Issue
