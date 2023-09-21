@@ -48,9 +48,9 @@ jobs:
       run: |
         if [ "$npm_audit_result" != "{}" ] || [ "$composer_audit_result" != "[]" ]; then
           echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "**NPM Vulnerabilities Audit**" >> issue_body.txt
+          echo "NPM Vulnerabilities Audit" >> issue_body.txt
           echo "$(cat npm-audit.json)" >> issue_body.txt
-          echo "**Composer Vulnerabilities Audit**" >> issue_body.txt
+          echo "Composer Vulnerabilities Audit" >> issue_body.txt
           echo "$(cat composer-outdated.json)" >> issue_body.txt
           cat issue_body.txt
           echo "::set-output name=issue_body::$(cat issue_body.txt)"
