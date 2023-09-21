@@ -57,6 +57,7 @@ jobs:
         else
           echo "::set-output name=condition::false"
         fi
+      shell: bash
 
     - name: Create Issue
       if: steps.condition.outputs.condition == 'true'
