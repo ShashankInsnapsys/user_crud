@@ -1,0 +1,58 @@
+name: Vulnerability Audit
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  audit:
+    name: Audit for Vulnerabilities
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: |
+          npm ci --ignore-scripts
+      - name: Audit npm dependencies
+        id: npm-audit
+        run: |
+          npm audit --production --json > npm_audit_report.json
+          npm audit ci || echo "::set-output name=audit-failed::true"
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer dependencies
+        run: |
+          composer install --no-scripts --no-progress --no-suggest --ignore-platform-req=ext-oci8
+      - name: Audit Composer dependencies
+        id: composer-audit
+        run: |
+          composer audit || echo "::set-output name=audit-failed::true"
+      - name: Set npm audit report as an environment variable
+        id: set-report
+        run: |
+          export REPORT_CONTENTS=$(cat npm_audit_report.json)
+          echo "::set-output name=report::$REPORT_CONTENTS"
+      - name: Create GitHub issue
+        if: ${{ steps.npm-audit.outputs.audit-failed == 'true' || steps.composer-audit.outputs.audit-failed == 'true' }}
+        run: |
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          REPO="${{ github.repository }}"
+          TITLE="Vulnerabilities found in dependencies"
+          BODY="**NPM Audit Report**\n\`\`\`$REPORT_CONTENTS\`\`\`"
+          LABELS="vulnerability"
+          MILESTONE="28"
+          ASSIGNEE="manojmilani"
+          RESPONSE=$(curl -X POST -H "Authorization: token $TOKEN" -d "{\"title\":\"$TITLE\",\"body\":\"$BODY\",\"labels\":[\"$LABELS\"],\"milestone\":$MILESTONE,\"assignees\":[\"$ASSIGNEE\"]}" "https://api.github.com/repos/$REPO/issues")
+          ISSUE_NUMBER=$(echo "$RESPONSE" | jq -r .number)
+          echo "Created issue number $ISSUE_NUMBER"
