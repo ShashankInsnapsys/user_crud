@@ -65,4 +65,5 @@ jobs:
         body: |
            npm Audit Report\n\`\`\`$(cat npm-audit.json)\`\`\`
            Composer Audit Report\n\`\`\`$(cat composer-outdated.json)\`\`\`
-        assignees: "ShashankInsnapsys"
+        assignees: |
+          - "ShashankInsnapsys"
