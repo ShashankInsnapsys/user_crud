@@ -44,13 +44,13 @@ jobs:
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
-      id: check-if-vulnerabilities-present
+      id: condition
       run: |
         if [ "$npm_audit_result" != "{}" ] || [ "$composer_audit_result" != "[]" ]; then
-          echo "::set-output name=condition::true"
-          echo "NPM Vulnerabilities Audit" >> issue_body.txt
+          echo "::set-output name=isVulnerabilitiesPresent::true"
+          echo "**NPM Vulnerabilities Audit**" >> issue_body.txt
           echo "$(cat npm-audit.json)" >> issue_body.txt
-          echo "Composer Vulnerabilities Audit" >> issue_body.txt
+          echo "**Composer Vulnerabilities Audit**" >> issue_body.txt
           echo "$(cat composer-outdated.json)" >> issue_body.txt
           cat issue_body.txt
           echo "::set-output name=issue_body::$(cat issue_body.txt)"
@@ -59,7 +59,7 @@ jobs:
         fi
 
     - name: Create Issue
-      if: steps.condition.outputs.condition == 'true'
+      if: steps.condition.isVulnerabilitiesPresent == 'true'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: octokit/request-action@v2.x
@@ -68,7 +68,7 @@ jobs:
         owner: ${{ github.repository_owner }}
         repo: ${{ github.repository }}
         title: "Vulnerabilities found in dependencies"
-        body: ${{ steps.check-if-vulnerabilities-present.outputs.issue_body }}
+        body: ${{ steps.condition.outputs.issue_body }}
         labels: |
           - vulnerability
         assignees: |
