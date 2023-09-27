@@ -36,26 +36,26 @@ jobs:
         composer install
 
     - name: Check npm vulnerabilities
-      run: npm audit > npm-audit.txt
+      run: npm audit --json > npm-audit.md
       continue-on-error: true
 
     - name: Check Composer vulnerabilities
-      run: composer outdated --all --format=text > composer-outdated.txt
+      run: composer outdated --all --format=json > composer-outdated.md
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
       id: condition
       run: |
-        if [ "$(cat npm-audit.txt)" != "" ] || [ "$(cat composer-outdated.txt)" != "" ]; then
+        if [ "$(cat npm-audit.md)" != "" ] || [ "$(cat composer-outdated.md)" != "" ]; then
           echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "NPM Vulnerabilities Audit $(cat npm-audit.txt) Composer Vulnerabilities Audit $(cat composer-outdated.txt)" >> issue_body.txt
+          echo "NPM Vulnerabilities Audit $(cat npm-audit.md) Composer Vulnerabilities Audit $(cat composer-outdated.md)" >> issue_body.md
           #echo "$(cat npm-audit.txt)" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "Composer Vulnerabilities Audit" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "$(cat composer-outdated.txt)" >> issue_body.txt
-          cat issue_body.txt
-          echo "::set-output name=issue_body::$(cat issue_body.txt)"
+          cat issue_body.md
+          echo "::set-output name=issue_body::$(cat issue_body.md)"
         else
           echo "::set-output name=isVulnerabilitiesPresent::false"
         fi
