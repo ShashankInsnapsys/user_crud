@@ -63,9 +63,6 @@ jobs:
           echo "$(cat npm-audit.txt)" >> issue_body.txt
           echo "Composer audit report\n" >> issue_body.txt
           echo "$(cat composer-audit.txt)" >> issue_body.txt
-          BODY=$(cat issue_body.txt)
-          echo $BODY | sed 's/\//\\\//g'
-          echo "::set-output name=issue_body::$(echo $BODY | sed 's/\//\\\//g')"
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
         else
