@@ -59,11 +59,13 @@ jobs:
         echo "Extracted Value of composer audit: $COMPOSER_REPORT"
         echo "Extracted value of npm audit: $TOTAL"
         if [ $TOTAL != "0" ] || [ $COMPOSER_REPORT != "[]" ]; then
-          echo "$(cat npm-audit.json)" > issue_body.txt
-          echo "$(cat composer-outdated.json)" >> issue_body.txt
+          echo "NPM audit report" > issue_body.txt
+          echo "$(cat npm-audit.json)" >> issue_body.txt
+          echo "Composer audit report" >> issue_body.txt
+          echo "$(cat composer-audit.json)" >> issue_body.txt
           BODY=$(cat issue_body.txt)
           echo $BODY | sed 's/\//\\\//g'
-          echo "::set-output name=issue_body::$(cat issue_body.txt)"
+          #echo "::set-output name=issue_body::$(cat issue_body.txt)"
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
         else
