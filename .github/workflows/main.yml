@@ -48,7 +48,7 @@ jobs:
       id: condition
       run: |
         COMPOSER_REPORT=$(cat composer-audit.json | jq -r '.advisories')
-        NPM_AUDIT_VULNERABILITIES=$(cat npm-audit.json | jq -r '.vulnerabilities')
+        NPM_AUDIT_VULNERABILITIES=$(cat npm-audit.json | jq -r '.metadata')
         echo "Extracted Value of composer audit: $COMPOSER_REPORT"
         echo "Extracted value of npm audit: $NPM_AUDIT_VULNERABILITIES"
         #if [ "$(cat npm-audit.md)" != "" ] || [ "$(cat composer-outdated.md)" != "" ]; then
