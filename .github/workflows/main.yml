@@ -75,6 +75,7 @@ jobs:
     - name: Create Issue
       if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
       run: |
+        FILE_CONTENT_BASE64=$(cat issue_body.txt | base64)
         issue_number=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"title": "Vulnerabilities found in dependencies", "body": ""}' \
@@ -82,5 +83,5 @@ jobs:
 
         curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{"body": "NPM Audit\n\n[File](https://github.com/${{ github.repository }}/files/12763792/npm-audit.txt)\n\nComposer Audit\n\n[File](https://github.com/${{ github.repository }}/files/12763792/composer-audit.txt)"}' \
+          -d '{"body": "$FILE_CONTENT_BASE64"}' \
           "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number"
