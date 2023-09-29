@@ -73,6 +73,7 @@ jobs:
       if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
       run: |
         FILE_CONTENT_BASE64=$(cat issue_body.txt | base64)
+        echo $FILE_CONTENT_BASE64
         issue_number=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"title": "Vulnerabilities found in dependencies", "body": ""}' \
