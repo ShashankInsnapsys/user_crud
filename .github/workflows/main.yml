@@ -59,19 +59,16 @@ jobs:
         echo "Extracted Value of composer audit: $COMPOSER_REPORT"
         echo "Extracted value of npm audit: $TOTAL"
         if [ $TOTAL != "0" ] || [ $COMPOSER_REPORT != "[]" ]; then
-          #echo "::set-output name=isVulnerabilitiesPresent::true"
-          #echo "NPM Vulnerabilities Audit $(cat npm-audit.md) Composer Vulnerabilities Audit $(cat composer-outdated.md)" >> issue_body.md
-          #echo "$(cat npm-audit.txt)" >> issue_body.txt
-          #echo "" >> issue_body.txt
-          #echo "Composer Vulnerabilities Audit" >> issue_body.txt
-          #echo "" >> issue_body.txt
-          #echo "$(cat composer-outdated.txt)" >> issue_body.txt
-          #cat issue_body.md
-          #echo "::set-output name=issue_body::$(cat issue_body.md)"
+          echo "$(cat npm-audit.json)" > issue_body.txt
+          echo "$(cat composer-outdated.json)" >> issue_body.txt
+          BODY=$(cat issue_body.txt)
+          echo $BODY | sed 's/\//\\\//g'
+          echo "::set-output name=issue_body::$(cat issue_body.txt)"
+          echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
         else
           echo "FALSE"
-          #echo "::set-output name=isVulnerabilitiesPresent::false"
+          echo "::set-output name=isVulnerabilitiesPresent::false"
         fi
     #- name: Create Issue
       #if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
