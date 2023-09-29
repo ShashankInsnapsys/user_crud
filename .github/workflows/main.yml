@@ -65,25 +65,25 @@ jobs:
           echo "$(cat composer-audit.json)" >> issue_body.txt
           BODY=$(cat issue_body.txt)
           echo $BODY | sed 's/\//\\\//g'
-          #echo "::set-output name=issue_body::$(cat issue_body.txt)"
+          #echo "::set-output name=issue_body::$(echo $BODY | sed 's/\//\\\//g')"
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
         else
           echo "FALSE"
           echo "::set-output name=isVulnerabilitiesPresent::false"
         fi
-    #- name: Create Issue
-      #if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
-      #env:
-          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #uses: octokit/request-action@v2.x
-      #with:
-        #route: POST /repos/${{ github.repository }}/issues
-        #owner: ${{ github.repository_owner }}
-        #repo: ${{ github.repository }}
-        #title: "Vulnerabilities found in dependencies"
-        #body: ${{ steps.condition.outputs.issue_body }}
-        #labels: |
-          #- vulnerability
-        #assignees: |
-          #- "ShashankInsnapsys"
+    - name: Create Issue
+      if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/${{ github.repository }}/issues
+        owner: ${{ github.repository_owner }}
+        repo: ${{ github.repository }}
+        title: "Vulnerabilities found in dependencies"
+        body: ${{ steps.condition.outputs.issue_body }}
+        labels: |
+          - vulnerability
+        assignees: |
+          - "ShashankInsnapsys"
