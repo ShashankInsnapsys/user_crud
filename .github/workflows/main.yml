@@ -13,6 +13,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Install jq
+      run: sudo apt-get update && sudo apt-get install -y jq
+
     - name: Install Node.js and npm
       uses: actions/setup-node@v2
       with:
@@ -29,49 +32,50 @@ jobs:
         php composer-setup.php
         php -r "unlink('composer-setup.php');"
         mv composer.phar /usr/local/bin/composer
-
     - name: Install Dependencies
       run: |
         npm install
         composer install
-
     - name: Check npm vulnerabilities
-      run: npm audit --json > npm-audit.md
+      run: npm audit --json > npm-audit.json
       continue-on-error: true
 
     - name: Check Composer vulnerabilities
-      run: composer outdated --all --format=json > composer-outdated.md
+      run: composer audit --format=json > composer-audit.json
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
       id: condition
       run: |
-        if [ "$(cat npm-audit.md)" != "" ] || [ "$(cat composer-outdated.md)" != "" ]; then
-          echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "NPM Vulnerabilities Audit $(cat npm-audit.md) Composer Vulnerabilities Audit $(cat composer-outdated.md)" >> issue_body.md
+        COMPOSER_REPORT=$(cat composer-audit.json | jq -r '.advisories')
+        NPM_AUDIT_VULNERABILITIES=$(cat npm-audit.json | jq -r '.vulnerabilities')
+        echo "Extracted Value of composer audit: $COMPOSER_REPORT"
+        echo "Extracted value of npm audit: $NPM_AUDIT_VULNERABILITIES"
+        #if [ "$(cat npm-audit.md)" != "" ] || [ "$(cat composer-outdated.md)" != "" ]; then
+          #echo "::set-output name=isVulnerabilitiesPresent::true"
+          #echo "NPM Vulnerabilities Audit $(cat npm-audit.md) Composer Vulnerabilities Audit $(cat composer-outdated.md)" >> issue_body.md
           #echo "$(cat npm-audit.txt)" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "Composer Vulnerabilities Audit" >> issue_body.txt
           #echo "" >> issue_body.txt
           #echo "$(cat composer-outdated.txt)" >> issue_body.txt
-          cat issue_body.md
-          echo "::set-output name=issue_body::$(cat issue_body.md)"
-        else
-          echo "::set-output name=isVulnerabilitiesPresent::false"
-        fi
-
-    - name: Create Issue
-      if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: octokit/request-action@v2.x
-      with:
-        route: POST /repos/${{ github.repository }}/issues
-        owner: ${{ github.repository_owner }}
-        repo: ${{ github.repository }}
-        title: "Vulnerabilities found in dependencies"
-        body: ${{ steps.condition.outputs.issue_body }}
-        labels: |
-          - vulnerability
-        assignees: |
-          - "ShashankInsnapsys"
+          #cat issue_body.md
+          #echo "::set-output name=issue_body::$(cat issue_body.md)"
+        #else
+          #echo "::set-output name=isVulnerabilitiesPresent::false"
+        #fi
+    #- name: Create Issue
+      #if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
+      #env:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #uses: octokit/request-action@v2.x
+      #with:
+        #route: POST /repos/${{ github.repository }}/issues
+        #owner: ${{ github.repository_owner }}
+        #repo: ${{ github.repository }}
+        #title: "Vulnerabilities found in dependencies"
+        #body: ${{ steps.condition.outputs.issue_body }}
+        #labels: |
+          #- vulnerability
+        #assignees: |
+          #- "ShashankInsnapsys"
