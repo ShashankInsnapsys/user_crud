@@ -65,7 +65,7 @@ jobs:
           echo "$(cat composer-audit.json)" >> issue_body.txt
           BODY=$(cat issue_body.txt)
           echo $BODY | sed 's/\//\\\//g'
-          #echo "::set-output name=issue_body::$(echo $BODY | sed 's/\//\\\//g')"
+          echo "::set-output name=issue_body::$(echo $BODY | sed 's/\//\\\//g')"
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
         else
