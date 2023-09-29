@@ -37,18 +37,18 @@ jobs:
         npm install
         composer install
     - name: Check npm vulnerabilities
-      run: npm audit --json > npm-audit.json
+      run: npm audit --json > npm-audit.txt
       continue-on-error: true
 
     - name: Check Composer vulnerabilities
-      run: composer audit --format=json > composer-audit.json
+      run: composer audit --format=json > composer-audit.txt
       continue-on-error: true
 
     - name: Check if Vulnerabilities are present
       id: condition
       run: |
-        COMPOSER_REPORT=$(cat composer-audit.json | jq -r '.advisories')
-        NPM_AUDIT_METADATA=$(cat npm-audit.json | jq -r '.metadata')
+        COMPOSER_REPORT=$(cat composer-audit.txt | jq -r '.advisories')
+        NPM_AUDIT_METADATA=$(cat npm-audit.txt | jq -r '.metadata')
         NPM_AUDIT_VULNERABILITIES=$(echo $NPM_AUDIT_METADATA | jq -r '.vulnerabilities')
         NPM_AUDIT_VULNERABILITIES_info=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.info')
         NPM_AUDIT_VULNERABILITIES_low=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.low')
@@ -60,9 +60,9 @@ jobs:
         echo "Extracted value of npm audit: $TOTAL"
         if [ $TOTAL != "0" ] || [ $COMPOSER_REPORT != "[]" ]; then
           echo "NPM audit report\n" > issue_body.txt
-          echo "$(cat npm-audit.json)" >> issue_body.txt
+          echo "$(cat npm-audit.txt)" >> issue_body.txt
           echo "Composer audit report\n" >> issue_body.txt
-          echo "$(cat composer-audit.json)" >> issue_body.txt
+          echo "$(cat composer-audit.txt)" >> issue_body.txt
           BODY=$(cat issue_body.txt)
           echo $BODY | sed 's/\//\\\//g'
           echo "::set-output name=issue_body::$(echo $BODY | sed 's/\//\\\//g')"
@@ -82,5 +82,5 @@ jobs:
 
         curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{"body": "NPM Audit\n\n![File](https://github.com/${{ github.repository }}/npm-audit.json)\n\nComposer Audit\n\n![File](https://github.com/${{ github.repository }}/composer-audit.json)"}' \
+          -d '{"body": "NPM Audit\n\n![File](https://github.com/${{ github.repository }}/file/346543/npm-audit.txt)\n\nComposer Audit\n\n![File](https://github.com/${{ github.repository }}/file/457645/composer-audit.txt)"}' \
           "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number"
