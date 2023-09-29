@@ -48,10 +48,17 @@ jobs:
       id: condition
       run: |
         COMPOSER_REPORT=$(cat composer-audit.json | jq -r '.advisories')
-        NPM_AUDIT_VULNERABILITIES=$(cat npm-audit.json | jq -r '.metadata')
+        NPM_AUDIT_METADATA=$(cat npm-audit.json | jq -r '.metadata')
+        NPM_AUDIT_VULNERABILITIES=$(echo $NPM_AUDIT_METADATA | jq -r '.vulnerabilities')
+        NPM_AUDIT_VULNERABILITIES_info=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.info')
+        NPM_AUDIT_VULNERABILITIES_low=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.low')
+        NPM_AUDIT_VULNERABILITIES_moderate=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.moderate')
+        NPM_AUDIT_VULNERABILITIES_high=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.high')
+        NPM_AUDIT_VULNERABILITIES_critical=$(echo $NPM_AUDIT_VULNERABILITIES | jq -r '.critical')
+        TOTAL=$(python -c "print($NPM_AUDIT_VULNERABILITIES_info + $NPM_AUDIT_VULNERABILITIES_low + $NPM_AUDIT_VULNERABILITIES_moderate + $NPM_AUDIT_VULNERABILITIES_high + $NPM_AUDIT_VULNERABILITIES_critical)")
         echo "Extracted Value of composer audit: $COMPOSER_REPORT"
-        echo "Extracted value of npm audit: $NPM_AUDIT_VULNERABILITIES"
-        #if [ "$(cat npm-audit.md)" != "" ] || [ "$(cat composer-outdated.md)" != "" ]; then
+        echo "Extracted value of npm audit: $TOTAL"
+        if [ $TOTAL != "0" ] || [ $COMPOSER_REPORT != "[]" ]; then
           #echo "::set-output name=isVulnerabilitiesPresent::true"
           #echo "NPM Vulnerabilities Audit $(cat npm-audit.md) Composer Vulnerabilities Audit $(cat composer-outdated.md)" >> issue_body.md
           #echo "$(cat npm-audit.txt)" >> issue_body.txt
@@ -61,9 +68,11 @@ jobs:
           #echo "$(cat composer-outdated.txt)" >> issue_body.txt
           #cat issue_body.md
           #echo "::set-output name=issue_body::$(cat issue_body.md)"
-        #else
+          echo "TRUE"
+        else
+          echo "FALSE"
           #echo "::set-output name=isVulnerabilitiesPresent::false"
-        #fi
+        fi
     #- name: Create Issue
       #if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
       #env:
