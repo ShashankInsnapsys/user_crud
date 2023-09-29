@@ -82,5 +82,5 @@ jobs:
 
         curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{"body": "NPM Audit\n\n![File](https://github.com/${{ github.repository }}/file/346543/npm-audit.txt)\n\nComposer Audit\n\n![File](https://github.com/${{ github.repository }}/file/457645/composer-audit.txt)"}' \
+          -d '{"body": "NPM Audit\n\n![File](https://github.com/${{ github.repository }}/files/12763792/npm-audit.txt)\n\nComposer Audit\n\n![File](https://github.com/${{ github.repository }}/files/12763792/composer-audit.txt)"}' \
           "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number"
