@@ -82,9 +82,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.repository }}
           title: "Vulnerabilities found in dependencies"
-          body: |
-           !!str
-           ${{ steps.condition.outputs.issue_body }}
+          body: $(jq -c . steps.condition.outputs.issue_body)
           labels: |
            - vulnerability
           assignees: |
