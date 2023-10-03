@@ -59,30 +59,23 @@ jobs:
         echo "Extracted Value of composer audit: $COMPOSER_REPORT"
         echo "Extracted value of npm audit: $TOTAL"
         if [ $TOTAL != "0" ] || [ $COMPOSER_REPORT != "[]" ]; then
-          echo "NPM audit report\n" > issue_body.txt
+          echo "NPM audit report" > issue_body.txt
           echo "$(cat npm-audit.txt)" >> issue_body.txt
-          echo "Composer audit report\n" >> issue_body.txt
+          echo "Composer audit report" >> issue_body.txt
           echo "$(cat composer-audit.txt)" >> issue_body.txt
-          echo "::set-output name=isVulnerabilitiesPresent::true"
-          echo "TRUE"
           REPORT=$(echo "$(cat issue_body.txt)" | sed ':a;N;$!ba;s/\n/<br\/>/g')
           echo "::set-output name=issue_body::$REPORT"
+          echo "TRUE"
+          echo "$REPORT"
+          echo "::set-output name=isVulnerabilitiesPresent::true"
         else
           echo "FALSE"
           echo "::set-output name=isVulnerabilitiesPresent::false"
         fi
     - name: Create Issue
       if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          uses: octokit/request-action@v2.x
-      with:
-        route: POST /repos/${{ github.repository }}/issues
-        owner: ${{ github.repository_owner }}
-        repo: ${{ github.repository }}
-        title: "Vulnerabilities found in dependencies"
-        body: ${{ steps.condition.outputs.issue_body }}
-        labels: |
-          - vulnerability
-        assignees: |
-          - "ShashankInsnapsys"
+      run: |
+        issue_number=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"title": "Vulnerabilities found in dependencies", "body": "$(steps.condition.outputs.issue_body)"}' \
+          "https://api.github.com/repos/${{ github.repository }}/issues" | jq -r '.number')
