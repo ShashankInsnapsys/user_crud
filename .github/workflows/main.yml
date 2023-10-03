@@ -83,7 +83,8 @@ jobs:
           repo: ${{ github.repository }}
           title: "Vulnerabilities found in dependencies"
           body: |
-           ${{ !!str steps.condition.outputs.issue_body }}
+           !!str
+           $(cat issue_body.txt)
           labels: |
            - vulnerability
           assignees: |
