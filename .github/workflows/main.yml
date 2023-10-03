@@ -65,6 +65,7 @@ jobs:
           echo "$(cat composer-audit.txt)" >> issue_body.txt
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
+          echo "$(cat issue_body.txt)"
         else
           echo "FALSE"
           echo "::set-output name=isVulnerabilitiesPresent::false"
