@@ -64,6 +64,7 @@ jobs:
           echo "Composer audit report" >> issue_body.txt
           echo "$(cat composer-audit.txt)" >> issue_body.txt
           REPORT=$(echo "$(cat issue_body.txt)" | sed ':a;N;$!ba;s/\n/<br\/>/g')
+          REPORT = $(jq -c . $REPORT)
           echo "::set-output name=issue_body::$REPORT"
           echo "TRUE"
           echo "$REPORT"
@@ -82,7 +83,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.repository }}
           title: "Vulnerabilities found in dependencies"
-          body: $(jq -c . steps.condition.outputs.issue_body)
+          body: ${{ steps.condition.outputs.issue_body }}
           labels: |
            - vulnerability
           assignees: |
