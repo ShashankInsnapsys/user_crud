@@ -65,7 +65,8 @@ jobs:
           echo "$(cat composer-audit.txt)" >> issue_body.txt
           echo "::set-output name=isVulnerabilitiesPresent::true"
           echo "TRUE"
-          echo "$(cat issue_body.txt)"
+          REPORT=$(echo "$(cat issue_body.txt)" | sed ':a;N;$!ba;s/\n/<br\/>/g')
+          echo "::set-output name=issue_body::$REPORT"
         else
           echo "FALSE"
           echo "::set-output name=isVulnerabilitiesPresent::false"
@@ -73,14 +74,12 @@ jobs:
     - name: Create Issue
       if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
       run: |
-        FILE_CONTENT_BASE64=$(cat issue_body.txt | base64)
-        echo $FILE_CONTENT_BASE64
-        issue_number=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"title": "Vulnerabilities found in dependencies", "body": ""}' \
-          "https://api.github.com/repos/${{ github.repository }}/issues" | jq -r '.number')
-
-        curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"body": $FILE_CONTENT_BASE64}' \
-          "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number"
+        route: POST /repos/${{ github.repository }}/issues
+        owner: ${{ github.repository_owner }}
+        repo: ${{ github.repository }}
+        title: "Vulnerabilities found in dependencies"
+        body: ${{ steps.condition.outputs.issue_body }}
+        labels: |
+          - vulnerability
+        assignees: |
+          - "ShashankInsnapsys"
