@@ -63,7 +63,7 @@ jobs:
           echo "$(cat npm-audit.txt)" >> issue_body.txt
           echo "Composer audit report" >> issue_body.txt
           echo "$(cat composer-audit.txt)" >> issue_body.txt
-          REPORT=$("$(cat issue_body.txt)" | sed ':a;N;$!ba;s/\n/<br\/>/g')
+          REPORT=$(echo "$(cat issue_body.txt)" | sed ':a;N;$!ba;s/\n/<br\/>/g')
           echo "::set-output name=issue_body::$REPORT"
           echo "TRUE"
           echo "$REPORT"
