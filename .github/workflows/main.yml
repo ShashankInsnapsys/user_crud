@@ -74,8 +74,16 @@ jobs:
         fi
     - name: Create Issue
       if: steps.condition.outputs.isVulnerabilitiesPresent == 'true'
-      run: |
-        issue_number=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"title": "Vulnerabilities found in dependencies", "body": $(steps.condition.outputs.issue_body)}' \
-          "https://api.github.com/repos/${{ github.repository }}/issues" | jq -r '.number')
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: octokit/request-action@v2.x
+      with:
+          route: POST /repos/${{ github.repository }}/issues
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.repository }}
+          title: "Vulnerabilities found in dependencies"
+          body: ${{ steps.condition.outputs.issue_body }}
+          labels: |
+           - vulnerability
+          assignees: |
+           - ShashankInsnapsys
