@@ -82,7 +82,8 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.repository }}
           title: "Vulnerabilities found in dependencies"
-          body: ${{ steps.condition.outputs.issue_body }}
+          body: |
+           ${{ steps.condition.outputs.issue_body }}
           labels: |
            - vulnerability
           assignees: |
